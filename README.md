@@ -17,6 +17,14 @@ una suscripción **WebCal** en la app Calendario de Apple.
 
 ---
 
+## Vista previa
+
+| PWA de captura de notas |
+|---|
+| ![NoteSync PWA](docs/screenshots/home.png) |
+
+---
+
 ## ¿Cómo funciona?
 
 ```

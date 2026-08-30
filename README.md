@@ -143,11 +143,31 @@ iPhone. El Atajo debe enviarlo en el header `X-API-Key`.
    Añadir calendario por suscripción**.
 2. Pega la URL: `https://TU-API.onrender.com/api/feed.ics`.
 
-## Despliegue
+## Despliegue (Render)
 
-El `render.yaml` incluido levanta la API en Render (plan gratuito). El frontend es
-estático (`dist/`) y puede servirse desde cualquier hosting seguro (HTTPS es
-requisito para instalar la PWA en el tab del S Pen).
+El `render.yaml` (en la raíz del repo) define los dos servicios ya conectados:
+
+- **`notesync-api`** — web service FastAPI (plan free). Genera un `IOS_SECRET` automáticamente.
+- **`notesync-web`** — static site con el frontend. Durante el build inyecta
+  `VITE_API_BASE` apuntando a `https://notesync-api.onrender.com` (referencia
+  cruzada), así que el endpoint `CORS_ORIGINS` se configura solo.
+
+Pasos (una sola cuenta gratuita en [render.com](https://render.com)):
+
+1. Conecta tu cuenta de GitHub a Render.
+2. **New → Blueprint** → selecciona `jeremyarthur/notesync`.
+3. Revisa los dos servicios y pulsa **Apply** (crea y despliega ambos).
+4. Abre `https://notesync-web.onrender.com` → ahí instalas la PWA en tu tab
+   (menú de Chrome/Samsung Internet → *Agregar a la pantalla de inicio*).
+
+> ⚠️ **Persistencia:** el plan free de Render usa el disco del contenedor, y se
+> resetea en cada redeploy. Para que las notas sobrevivan, ve a tu Postgres en
+> Render (o añade `databases:` al blueprint) y define la variable `DATABASE_URL`
+> del servicio `notesync-api` apuntando a su `connectionString`. La API ya la
+> soporta nativamente (SQLAlchemy).
+
+> 🔑 **`IOS_SECRET`:** Render lo genera y lo muestra en el panel del servicio
+> (Environment). Tu Atajo de iOS debe enviarlo en `X-API-Key`.
 
 ## Estructura
 

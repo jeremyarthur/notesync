@@ -1,7 +1,8 @@
 {
   "name": "NoteSync",
   "short_name": "NoteSync",
-  "description": "Escribe notas desde cualquier lugar y haz que lleguen a tus recordatorios de iPhone.",
+  "description": "Escribe notas a mano con el S Pen de tu Samsung y redeséalas desde tu iPhone.",
+  "id": "/",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",

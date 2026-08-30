@@ -1,13 +1,13 @@
 """Endpoints de notas (crear, listar, borrar, marcar como sincronizadas)."""
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..config import get_settings
 from ..database import get_db
 from ..models import Note
-from ..schemas import NoteCreate, NoteOut, SyncOut
+from ..schemas import NoteCreate, NoteOut, NoteUpdate, SyncOut
 
 router = APIRouter(prefix="/api", tags=["notes"])
 
@@ -25,6 +25,7 @@ def create_note(payload: NoteCreate, db: Session = Depends(get_db)) -> Note:
     note = Note(
         title=payload.title,
         body=payload.body,
+        ink=payload.ink.model_dump(mode="json") if payload.ink else None,
         reminder_at=payload.reminder_at,
         source=payload.source,
     )
@@ -37,6 +38,32 @@ def create_note(payload: NoteCreate, db: Session = Depends(get_db)) -> Note:
 @router.get("/notes", response_model=list[NoteOut])
 def list_notes(db: Session = Depends(get_db)) -> list[Note]:
     return list(db.scalars(select(Note).order_by(Note.created_at.desc())))
+
+
+@router.get("/notes/{note_id}", response_model=NoteOut)
+def get_note(note_id: int, db: Session = Depends(get_db)) -> Note:
+    note = db.get(Note, note_id)
+    if not note:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Nota no encontrada")
+    return note
+
+
+@router.patch("/notes/{note_id}", response_model=NoteOut)
+def update_note(
+    note_id: int,
+    payload: NoteUpdate,
+    db: Session = Depends(get_db),
+) -> Note:
+    """Re-edita una nota (p. ej. guardar nuevo trazo de tinta desde el editor)."""
+    note = db.get(Note, note_id)
+    if not note:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Nota no encontrada")
+    fields = payload.model_dump(mode="json", exclude_unset=True)
+    for field, value in fields.items():
+        setattr(note, field, value)
+    db.commit()
+    db.refresh(note)
+    return note
 
 
 @router.delete("/notes/{note_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -13,9 +13,9 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="NoteSync API",
-    description="Servicio de notas con recordatorios sincronizables con iPhone "
+    description="Notas manuscritas (S Pen) desde tu Samsung, visibles en tu iPhone "
     "(Atajos/Shortcuts y suscripcion WebCal).",
-    version="1.0.0",
+    version="2.0.0",
 )
 
 app.add_middleware(

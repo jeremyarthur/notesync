@@ -69,12 +69,11 @@ class TestNotes:
 
 class TestReminders:
     def test_pending_by_date(self, client):
-        from datetime import date
-
         today = datetime.now(timezone.utc)
         make_note(client, title="Hoy", when=today + timedelta(hours=1), source="web")
         make_note(client, title="Otro mes", when=today + timedelta(days=45))
-        response = client.get(f"/api/reminders?due={date.today().isoformat()}")
+        due = (today + timedelta(hours=1)).date().isoformat()
+        response = client.get(f"/api/reminders?due={due}")
         assert response.status_code == 200
         titles = [item["title"] for item in response.json()]
         assert "Hoy" in titles

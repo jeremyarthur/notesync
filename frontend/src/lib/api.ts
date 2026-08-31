@@ -1,5 +1,5 @@
 const API_BASE = (import.meta.env.VITE_API_BASE ?? "/api").replace(/\/$/, "");
-const TIMEOUT_MS = 15000;
+const TIMEOUT_MS = 90000;
 
 export function getApiBase(): string {
   return API_BASE;

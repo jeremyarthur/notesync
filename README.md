@@ -31,7 +31,7 @@ suscripción **WebCal**.
 ```
 ┌──────────────────────┐     ┌────────────────────┐     ┌──────────────────────┐
 │  Samsung tablet      │     │   NoteSync API     │     │       iPhone         │
-│  PWA instalada ·     │────▶│  FastAPI + SQLite  │────▶│  1) PWA: galería +  │
+│  PWA instalada ·     │────▶│  FastAPI + Postgres│────▶│  1) PWA: galería +  │
 │  lienzo fullscreen   │     │  guarda tinta      │     │     zoom de la nota  │
 │  S Pen + presión     │     │  vectorial (JSON)  │     │  2) Atajo → Recorda-│
 └──────────────────────┘     └────────────────────┘     │     torios           │
@@ -160,11 +160,11 @@ Pasos (una sola cuenta gratuita en [render.com](https://render.com)):
 4. Abre `https://notesync-web.onrender.com` → ahí instalas la PWA en tu tab
    (menú de Chrome/Samsung Internet → *Agregar a la pantalla de inicio*).
 
-> ⚠️ **Persistencia:** el plan free de Render usa el disco del contenedor, y se
-> resetea en cada redeploy. Para que las notas sobrevivan, ve a tu Postgres en
-> Render (o añade `databases:` al blueprint) y define la variable `DATABASE_URL`
-> del servicio `notesync-api` apuntando a su `connectionString`. La API ya la
-> soporta nativamente (SQLAlchemy).
+> ⚠️ **Persistencia:** el blueprint crea un **Postgres** (`databases → notesync`)
+> y la API guarda ahí las notas por defecto en producción; localmente sigue
+> usando SQLite. Ojo: el Postgres *free* de Render **expira a los 30 días**
+> (14 días extra de gracia); si lo ves caducar, súbelo a un plan de pago
+> (desde ~$6/mes) para no perder las notas.
 
 > 🔑 **`IOS_SECRET`:** Render lo genera y lo muestra en el panel del servicio
 > (Environment). Tu Atajo de iOS debe enviarlo en `X-API-Key`.

@@ -1,3 +1,9 @@
+# Postgres persistente (el plan free de Render borra el disco local en cada
+# deploy/spin-down, asi que SQLite no sirve para produccion).
+databases:
+  - name: notesync
+    plan: free
+
 # Render Blueprint de NoteSync: API (FastAPI) + frontend (React PWA estatico).
 # Despliegue: Render -> New -> Blueprint -> selecciona el repo jeremyarthur/notesync.
 services:
@@ -10,8 +16,14 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.5"
       - key: IOS_SECRET
         generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: notesync
+          property: connectionString
       # Permite que el frontend desplegado pueda llamar a la API.
       - key: CORS_ORIGINS
         fromService:

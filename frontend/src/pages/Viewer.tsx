@@ -141,7 +141,7 @@ export default function Viewer() {
       await api.patch(`/notes/${note.id}`, { reminder_at: value });
       setReminder(value);
       setEditingReminder(false);
-      setMessage(value ? "🔔 Recordatorio guardado" : "Recordatorio eliminado");
+      setMessage(value ? "Recordatorio guardado" : "Recordatorio eliminado");
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "No se pudo guardar el recordatorio");
     } finally {
@@ -158,7 +158,17 @@ export default function Viewer() {
       <div className="flex h-dvh flex-col items-center justify-center gap-4 text-slate-400">
         {error || "Nota no encontrada"}
         <Link to="/" className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300">
-          ← Volver a las notas
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="mr-1 inline h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Volver a las notas
         </Link>
       </div>
     );
@@ -171,7 +181,17 @@ export default function Viewer() {
           to="/"
           className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-indigo-500"
         >
-          ← Notas
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="mr-1 inline h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Notas
         </Link>
         <h1 className="min-w-0 flex-1 truncate text-sm font-semibold">{note.title}</h1>
         <button
@@ -191,21 +211,52 @@ export default function Viewer() {
             setScale(1);
             setPan({ x: 0, y: 0 });
           }}
-          className="rounded-lg border border-slate-700 px-2.5 py-1.5 text-sm text-slate-300 hover:border-indigo-500"
+          title="Restablecer zoom"
+          className="grid h-8 w-8 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-indigo-500"
         >
-          ⛶
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M11 3H5a2 2 0 00-2 2v6M13 21h6a2 2 0 002-2v-6M21 11V5a2 2 0 00-2-2h-6M3 13v6a2 2 0 002 2h6" />
+          </svg>
         </button>
         <button
           onClick={share}
-          className="rounded-lg bg-indigo-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-400"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-400"
         >
-          🔔 Añadir a iPhone
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M4 12v7a2 2 0 002 2h12a2 2 0 002-2v-7M16 6l-4-4-4 4M12 2v13" />
+          </svg>
+          Añadir a iPhone
         </button>
         <button
           onClick={remove}
-          className="rounded-lg border border-slate-700 px-2.5 py-1.5 text-sm text-slate-300 hover:border-red-500 hover:text-red-400"
+          aria-label="Eliminar nota"
+          title="Eliminar nota"
+          className="grid h-8 w-8 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-red-500 hover:text-red-400"
         >
-          ✕
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
         </button>
       </div>
 
@@ -213,8 +264,17 @@ export default function Viewer() {
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 px-3 py-2">
         {reminder ? (
           <>
-            <span className="text-sm text-indigo-300">
-              🔔{" "}
+            <span className="inline-flex items-center gap-1.5 text-sm text-indigo-300">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0" />
+              </svg>
               {new Date(reminder).toLocaleString("es-DO", {
                 weekday: "short",
                 day: "2-digit",
@@ -226,25 +286,55 @@ export default function Viewer() {
             <button
               onClick={() => setEditingReminder(true)}
               disabled={savingReminder}
-              className="rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-300 hover:border-indigo-500 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-300 hover:border-indigo-500 disabled:opacity-50"
             >
-              ✎ Editar
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-3.5 w-3.5"
+                aria-hidden="true"
+              >
+                <path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5z" />
+              </svg>
+              Editar
             </button>
             <button
               onClick={() => saveReminder(null)}
               disabled={savingReminder}
-              className="rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-300 hover:border-red-500 hover:text-red-400 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-300 hover:border-red-500 hover:text-red-400 disabled:opacity-50"
             >
-              ✕ Quitar
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-3.5 w-3.5"
+                aria-hidden="true"
+              >
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+              Quitar
             </button>
           </>
         ) : null}
         {!reminder && !editingReminder && (
           <button
             onClick={() => setEditingReminder(true)}
-            className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-indigo-500"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-indigo-500"
           >
-            🔔 Fijar recordatorio
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-4 w-4"
+              aria-hidden="true"
+            >
+              <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0" />
+            </svg>
+            Fijar recordatorio
           </button>
         )}
         {editingReminder && (

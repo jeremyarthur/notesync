@@ -265,7 +265,17 @@ export default function Editor() {
           to="/"
           className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-indigo-500"
         >
-          ← Notas
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="mr-1 inline h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Notas
         </Link>
         <input
           value={title}
@@ -291,7 +301,19 @@ export default function Editor() {
 
       {/* Recordatorio opcional */}
       <div className="flex items-center gap-2 border-b border-slate-800 px-3 py-2">
-        <span className="shrink-0 text-sm text-slate-400">🔔 Recordatorio</span>
+        <span className="flex shrink-0 items-center gap-1.5 text-sm text-slate-400">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0" />
+          </svg>
+          Recordatorio
+        </span>
         <ReminderInput value={reminder} onChange={setReminder} />
       </div>
 
@@ -317,13 +339,33 @@ export default function Editor() {
           }}
           className={`rounded-lg px-3 py-1.5 text-sm ${tool === "pen" ? "bg-indigo-500 text-white" : "border border-slate-700 text-slate-300"}`}
         >
-          ✍️ Lápiz
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="mr-1.5 inline h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5z" />
+          </svg>
+          Lápiz
         </button>
         <button
           onClick={() => setTool("eraser")}
           className={`rounded-lg px-3 py-1.5 text-sm ${tool === "eraser" ? "bg-indigo-500 text-white" : "border border-slate-700 text-slate-300"}`}
         >
-          🧽 Goma
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="mr-1.5 inline h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M3 7h2l4 6h2l4-6h2M3 11h6M15 11h2l2 4h2" />
+          </svg>
+          Goma
         </button>
 
         <span className="mx-1 hidden h-6 w-px bg-slate-800 sm:block" />
@@ -368,14 +410,35 @@ export default function Editor() {
           disabled={!canUndo}
           className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-indigo-500 disabled:opacity-40"
         >
-          ↩️ Deshacer
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="mr-1.5 inline h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+          Deshacer
         </button>
         <button
           onClick={clear}
           disabled={strokes.length === 0}
           className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-red-500 hover:text-red-400 disabled:opacity-40"
         >
-          🗑️ Borrar todo
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="mr-1.5 inline h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+          </svg>
+          Borrar todo
         </button>
       </div>
     </div>

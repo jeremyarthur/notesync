@@ -1,4 +1,4 @@
-# NoteSync ✍️🔄
+# NoteSync
 
 **Escribe notas a mano con el S Pen de tu Samsung… y revísalas en tu iPhone.**
 
@@ -39,7 +39,7 @@ suscripción **WebCal**.
                                                         └──────────────────────┘
 ```
 
-1. **Escribir (tab):** instalas la PWA (pantalla completa), tocas ✍️ nueva nota y
+1. **Escribir (tab):** instalas la PWA (pantalla completa), tocas *nueva nota* y
    escribes a mano alzada con el S Pen. Los trazos guardan **presión**, color y
    grosor, así que tu letra se ve como la escribiste.
 2. **Guardar:** la tinta se guarda como **vector** (puntos + presión) en la API.
@@ -49,10 +49,10 @@ suscripción **WebCal**.
    (o la suscripción **WebCal**) la convierte en un **Recordatorio** de Apple; también
    puedes compartir el enlace de una nota con *"Añadir a iPhone"*.
 
-> 💡 **Editable en cualquier momento:** al estar en formato vectorial puedes volver
+> **Editable en cualquier momento:** al estar en formato vectorial puedes volver
 > a abrir una nota y seguir escribiendo, borrar trazos con la goma o deshacer.
 
-> ⚠️ **Alcance honesto:** Samsung Notes no expone una API pública, por eso la app de
+> **Alcance honesto:** Samsung Notes no expone una API pública, por eso la app de
 > escritura es propia (mismo encaje de lápiz + presión) en lugar de una integración
 > directa. El flujo hacia el iPhone sí es real.
 
@@ -128,11 +128,11 @@ este último es el que usan la suscripción WebCal y los Atajos (no pueden poner
 
 ## Configurar el iPhone
 
-> 📱 **Ver las notas (sin configuración):** en Safari abre
+> **Ver las notas (sin configuración):** en Safari abre
 > `https://notesync-web.onrender.com` → Compartir → **Añadir a pantalla de inicio**.
 > Galería de miniaturas y visor con zoom por pellizco. Todo lo del tab aparece al instante.
 >
-> 🔔 Para que una nota salga como **Recordatorio** en tu iPhone, fija su fecha en el
+> Para que una nota salga como **Recordatorio** en tu iPhone, fija su fecha en el
 > **visor** (botón *Fijar recordatorio*) o en el **editor** al guardar.
 
 ### A) Atajo para crear Recordatorios
@@ -172,13 +172,13 @@ Pasos (una sola cuenta gratuita en [render.com](https://render.com)):
 4. Abre `https://notesync-web.onrender.com` → ahí instalas la PWA en tu tab
    (menú de Chrome/Samsung Internet → *Agregar a la pantalla de inicio*).
 
-> ⚠️ **Persistencia:** el blueprint crea un **Postgres** (`databases → notesync`)
+> **Persistencia:** el blueprint crea un **Postgres** (`databases → notesync`)
 > y la API guarda ahí las notas por defecto en producción; localmente sigue
 > usando SQLite. Ojo: el Postgres *free* de Render **expira a los 30 días**
 > (14 días extra de gracia); si lo ves caducar, súbelo a un plan de pago
 > (desde ~$6/mes) para no perder las notas.
 
-> 🔑 **`IOS_SECRET`:** Render lo genera y lo muestra en el panel del servicio
+> **`IOS_SECRET`:** Render lo genera y lo muestra en el panel del servicio
 > (Environment). Tu Atajo de iOS debe enviarlo en `X-API-Key`.
 
 ## Estructura

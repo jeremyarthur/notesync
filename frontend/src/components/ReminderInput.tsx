@@ -47,7 +47,16 @@ export default function ReminderInput({ value, onChange }: Props) {
           title="Quitar recordatorio"
           className="shrink-0 rounded-lg border border-slate-700 px-2 py-1.5 text-sm text-slate-400 hover:border-red-500 hover:text-red-400"
         >
-          ✕
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
         </button>
       )}
     </div>

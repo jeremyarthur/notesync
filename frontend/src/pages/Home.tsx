@@ -67,9 +67,19 @@ export default function Home() {
             </a>
             <Link
               to="/editor"
-              className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-400"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-400"
             >
-              ✍️ Nueva nota
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5z" />
+              </svg>
+              Nueva nota
             </Link>
           </div>
         </div>
@@ -93,7 +103,7 @@ export default function Home() {
           <div className="rounded-2xl border border-dashed border-slate-700 p-12 text-center">
             <p className="text-slate-300">Todavía no tienes notas.</p>
             <p className="mt-1 text-sm text-slate-500">
-              Toca "✍️ Nueva nota" y escribe a mano alzada con el S Pen.
+              Toca "Nueva nota" y escribe a mano alzada con el S Pen.
             </p>
           </div>
         ) : (
@@ -117,19 +127,40 @@ export default function Home() {
                     <p className="truncate text-sm font-medium">{note.title}</p>
                     <p className="mt-0.5 text-[11px] text-slate-500">
                       {formatDate(note.created_at)}
-                      {note.synced_to_ios && " · ✓ iPhone"}
+                      {note.synced_to_ios && " · Sincronizado con iPhone"}
                     </p>
                     {note.reminder_at && (
-                      <p className="mt-0.5 text-[11px] text-indigo-300">
-                        🔔 {formatDate(note.reminder_at)}
+                      <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-indigo-300">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="h-3 w-3"
+                          aria-hidden="true"
+                        >
+                          <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0" />
+                        </svg>
+                        {formatDate(note.reminder_at)}
                       </p>
                     )}
                   </div>
                   <button
                     onClick={() => handleDelete(note.id)}
-                    className="shrink-0 rounded-lg border border-slate-700 px-2 py-1 text-[11px] text-slate-400 hover:border-red-500 hover:text-red-400"
+                    aria-label="Eliminar nota"
+                    title="Eliminar nota"
+                    className="grid h-6 w-6 shrink-0 place-items-center rounded-lg border border-slate-700 text-slate-400 hover:border-red-500 hover:text-red-400"
                   >
-                    ✕
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="h-3.5 w-3.5"
+                      aria-hidden="true"
+                    >
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
                   </button>
                 </div>
               </li>

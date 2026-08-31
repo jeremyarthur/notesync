@@ -1,6 +1,6 @@
 /* Service worker basico de NoteSync (PWA).
    Cachea el "shell" de la app para que funcione offline. */
-const CACHE = "notesync-v3";
+const CACHE = "notesync-v4";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();

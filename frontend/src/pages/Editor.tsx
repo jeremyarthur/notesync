@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
-import { PAGE_H, PAGE_W, renderInk } from "../lib/ink";
+import { ERASER_RADIUS, PAGE_H, PAGE_W, eraseStrokes, renderInk } from "../lib/ink";
 import type { InkData, InkStroke } from "../lib/types";
 
 const COLORS = ["#1e293b", "#2563eb", "#dc2626", "#059669", "#b45309"];
 const WIDTHS = [2, 4, 8];
 const PRESSURE_FLOOR = 0.05;
+const MAX_HISTORY = 100;
 
 function clampPressure(p: number): number {
   const v = Math.min(1, Math.max(0, p));
@@ -23,6 +24,9 @@ export default function Editor() {
   const current = useRef<InkStroke | null>(null);
   const drawing = useRef(false);
   const drawRaf = useRef(false);
+  const eraserPath = useRef<[number, number, number][]>([]);
+  const eraserTick = useRef(false);
+  const history = useRef<InkStroke[][]>([]);
 
   const [size, setSize] = useState({ w: PAGE_W / 2, h: PAGE_H / 2 });
   const [strokes, setStrokes] = useState<InkStroke[]>([]);
@@ -33,6 +37,7 @@ export default function Editor() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(Boolean(id));
+  const [canUndo, setCanUndo] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -40,6 +45,8 @@ export default function Editor() {
       .get<{ id: number; title: string; ink: InkData | null }>(`/notes/${id}`)
       .then((note) => {
         setTitle(note.title);
+        history.current = [];
+        setCanUndo(false);
         if (note.ink) {
           committed.current = note.ink.strokes;
           setStrokes(note.ink.strokes);
@@ -95,6 +102,12 @@ export default function Editor() {
     });
   };
 
+  const pushHistory = () => {
+    if (history.current.length >= MAX_HISTORY) history.current.shift();
+    history.current.push(committed.current.map((s) => ({ ...s, points: s.points.slice() })));
+    setCanUndo(true);
+  };
+
   const toLogical = (clientX: number, clientY: number, pressure: number): [number, number, number] => {
     const rect = canvasRef.current!.getBoundingClientRect();
     return [
@@ -102,6 +115,25 @@ export default function Editor() {
       Math.round(((clientY - rect.top) / rect.height) * PAGE_H),
       clampPressure(pressure),
     ];
+  };
+
+  const applyErase = () => {
+    const path = eraserPath.current;
+    if (path.length === 0) return;
+    eraserPath.current = [];
+    const next = eraseStrokes(committed.current, path, ERASER_RADIUS);
+    committed.current = next;
+    setStrokes(next);
+    redraw();
+  };
+
+  const scheduleErase = () => {
+    if (eraserTick.current) return;
+    eraserTick.current = true;
+    requestAnimationFrame(() => {
+      eraserTick.current = false;
+      applyErase();
+    });
   };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -113,18 +145,34 @@ export default function Editor() {
       /* eventos sinteticos (ej. pruebas automatizadas) */
     }
     drawing.current = true;
-    current.current = {
-      tool,
-      color,
-      width,
-      points: [toLogical(e.clientX, e.clientY, e.pressure)],
-    };
-    scheduleDraw();
+    if (tool === "eraser") {
+      pushHistory();
+      eraserPath.current = [toLogical(e.clientX, e.clientY, 0.5)];
+      scheduleErase();
+    } else {
+      current.current = {
+        tool,
+        color,
+        width,
+        points: [toLogical(e.clientX, e.clientY, e.pressure)],
+      };
+      scheduleDraw();
+    }
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!drawing.current) return;
     e.preventDefault();
+    if (tool === "eraser") {
+      const native = e.nativeEvent as PointerEvent;
+      const events =
+        typeof native.getCoalescedEvents === "function" ? native.getCoalescedEvents() : [e];
+      for (const ev of events) {
+        eraserPath.current.push(toLogical(ev.clientX, ev.clientY, 0.5));
+      }
+      scheduleErase();
+      return;
+    }
     const stroke = current.current!;
     const native = e.nativeEvent as PointerEvent;
     const events =
@@ -138,7 +186,10 @@ export default function Editor() {
   const finishStroke = () => {
     if (!drawing.current) return;
     drawing.current = false;
-    if (current.current && current.current.points.length >= 2) {
+    if (tool === "eraser") {
+      applyErase();
+    } else if (current.current && current.current.points.length >= 2) {
+      pushHistory();
       const next = [...committed.current, current.current];
       committed.current = next;
       setStrokes(next);
@@ -148,15 +199,19 @@ export default function Editor() {
   };
 
   const undo = () => {
-    const next = committed.current.slice(0, -1);
-    committed.current = next;
-    setStrokes(next);
+    const prev = history.current.pop();
+    if (!prev) return;
+    committed.current = prev;
+    setStrokes(prev);
+    setCanUndo(history.current.length > 0);
     redraw();
   };
 
   const clear = () => {
+    pushHistory();
     committed.current = [];
     current.current = null;
+    eraserPath.current = [];
     setStrokes([]);
     redraw();
   };
@@ -237,7 +292,7 @@ export default function Editor() {
           onPointerUp={finishStroke}
           onPointerCancel={finishStroke}
           className="touch-none rounded-sm shadow-2xl"
-          style={{ width: size.w, height: size.h, cursor: "crosshair" }}
+          style={{ width: size.w, height: size.h, cursor: tool === "eraser" ? "cell" : "crosshair" }}
         />
       </div>
 
@@ -298,7 +353,7 @@ export default function Editor() {
 
         <button
           onClick={undo}
-          disabled={strokes.length === 0}
+          disabled={!canUndo}
           className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-indigo-500 disabled:opacity-40"
         >
           ↩️ Deshacer

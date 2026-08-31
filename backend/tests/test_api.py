@@ -201,6 +201,23 @@ class TestReminders:
     def test_feed_requires_secret(self, client):
         assert client.get("/api/feed.ics").status_code == 401
 
+    def test_feed_accepts_key_query(self, client):
+        when = datetime.now(timezone.utc) + timedelta(hours=3)
+        make_note(client, title="Con query key", when=when)
+        response = client.get(f"/api/feed.ics?key={TEST_SECRET}")
+        assert response.status_code == 200
+        assert b"Con query key" in response.content
+
+    def test_patch_reminder_set_and_clear(self, client):
+        note_id = make_note(client).json()["id"]
+        when = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+        response = client.patch(f"/api/notes/{note_id}", json={"reminder_at": when})
+        assert response.status_code == 200
+        assert response.json()["reminder_at"] is not None
+        cleared = client.patch(f"/api/notes/{note_id}", json={"reminder_at": None})
+        assert cleared.status_code == 200
+        assert cleared.json()["reminder_at"] is None
+
 
 class TestSecurity:
     def test_mark_synced_requires_secret(self, client):

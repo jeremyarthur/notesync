@@ -45,9 +45,9 @@ suscripción **WebCal**.
 2. **Guardar:** la tinta se guarda como **vector** (puntos + presión) en la API.
 3. **Ver (iPhone):** abres la PWA desde el iPhone y ves la galería de miniaturas;
    al tocar una nota la abres en pantalla completa con **zoom con pellizco**.
-4. **Recordar (opcional):** con el botón *"Añadir a iPhone"* compartes la nota
-   (Share Sheet) a un Atajo que crea un **Recordatorio** en Apple; también puedes
-   suscribirte al **WebCal** pretendido.
+4. **Recordar (opcional):** al fijar una **fecha/hora** a la nota, un Atajo de iOS
+   (o la suscripción **WebCal**) la convierte en un **Recordatorio** de Apple; también
+   puedes compartir el enlace de una nota con *"Añadir a iPhone"*.
 
 > 💡 **Editable en cualquier momento:** al estar en formato vectorial puedes volver
 > a abrir una nota y seguir escribiendo, borrar trazos con la goma o deshacer.
@@ -106,7 +106,7 @@ La documentación interactiva (Swagger UI) está en `http://localhost:8001/docs`
 | `PATCH` | `/api/notes/{id}` | Editar título/tinta de una nota (re-editar) |
 | `DELETE` | `/api/notes/{id}` | Eliminar nota |
 | `GET` | `/api/reminders?due=2026-08-30` | Recordatorios de un día (para el Atajo) |
-| `GET` | `/api/feed.ics` | Feed WebCal (requiere `X-API-Key` si `IOS_SECRET` está definido) |
+| `GET` | `/api/feed.ics` | Feed WebCal (requiere `X-API-Key` o `?key=` si `IOS_SECRET` está definido) |
 | `POST` | `/api/notes/{id}/synced` | Marcar como creado en iPhone (requiere `X-API-Key`) |
 
 El payload de `ink` es un documento con trazos vectoriales normalizados a la
@@ -123,25 +123,37 @@ proporción de página (1414 × 2000). Ejemplo:
 ### Seguridad
 
 Define `IOS_SECRET` en `.env` (o en Render) para proteger los endpoints que usa el
-iPhone. El Atajo debe enviarlo en el header `X-API-Key`.
+iPhone. El Atajo puede enviarlo en el header `X-API-Key` **o** en la URL (`?key=`),
+este último es el que usan la suscripción WebCal y los Atajos (no pueden poner headers).
 
 ## Configurar el iPhone
 
+> 📱 **Ver las notas (sin configuración):** en Safari abre
+> `https://notesync-web.onrender.com` → Compartir → **Añadir a pantalla de inicio**.
+> Galería de miniaturas y visor con zoom por pellizco. Todo lo del tab aparece al instante.
+>
+> 🔔 Para que una nota salga como **Recordatorio** en tu iPhone, fija su fecha en el
+> **visor** (botón *Fijar recordatorio*) o en el **editor** al guardar.
+
 ### A) Atajo para crear Recordatorios
 
-1. En el tab, al abrir una nota toca **"Añadir a iPhone"** → se abre el **Share Sheet**.
-2. En **Atajos** crea un atajo con parámetro de entrada *"Texto/URL"* recibido del
-   share, cuyo contenido se usa en una acción **Añadir nuevo recordatorio**
-   (título = nota, notas = URL de la nota).
-3. Alternativa simple: **Automatización → Hora del día** que llame a
-   `GET https://TU-API.onrender.com/api/reminders?due=hoy` (con `X-API-Key`) y crea
-   un Recordatorio por cada elemento de la lista.
+1. Fija un recordatorio de una nota (visor o editor).
+2. En **Atajos** (Shortcuts) crea una **Automatización** que use la hora del día
+   (p. ej. cada mañana) y haga:
+   - *Obtener contenido de URL* →
+     `https://notesync-api.onrender.com/api/reminders?due=<fecha de hoy>&key=<IOS_SECRET>`
+     (usa *Formato de fecha* → "hoy" para `due` con formato `YYYY-MM-dd`).
+   - Por cada elemento de la lista (JSON): **Añadir nuevo recordatorio**, título =
+     `título`, notas = `https://notesync-web.onrender.com/nota/{id}`.
+3. Los recordatorios pendientes (**día actual UTC**) se crearán sin tocar nada.
 
 ### B) O suscribirte por Calendario (WebCal)
 
 1. En tu iPhone, **Configuración → Calendario → Cuentas → Añadir cuenta → Otro →
    Añadir calendario por suscripción**.
-2. Pega la URL: `https://TU-API.onrender.com/api/feed.ics`.
+2. Pega la URL: `https://notesync-api.onrender.com/api/feed.ics?key=<IOS_SECRET>`.
+3. Cada nota con recordatorio aparece como evento (se refresca solo). Ojo: tu iPhone
+   guarda esa URL (con la clave); es aceptable para uso personal.
 
 ## Despliegue (Render)
 

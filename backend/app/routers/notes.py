@@ -1,6 +1,6 @@
 """Endpoints de notas (crear, listar, borrar, marcar como sincronizadas)."""
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -58,7 +58,7 @@ def update_note(
     note = db.get(Note, note_id)
     if not note:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Nota no encontrada")
-    fields = payload.model_dump(mode="json", exclude_unset=True)
+    fields = payload.model_dump(exclude_unset=True)
     for field, value in fields.items():
         setattr(note, field, value)
     db.commit()
@@ -75,8 +75,12 @@ def delete_note(note_id: int, db: Session = Depends(get_db)) -> None:
     db.commit()
 
 
-async def sync_secret(x_api_key: str | None = Header(default=None, alias="X-API-Key")):
-    _secret_checked(x_api_key or "")
+async def sync_secret(
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+    key: str | None = Query(default=None),
+):
+    # Header primero; fallback por query para WebCal y Atajos (no pueden poner headers).
+    _secret_checked(x_api_key or key or "")
 
 
 @router.post("/notes/{note_id}/synced", response_model=SyncOut)

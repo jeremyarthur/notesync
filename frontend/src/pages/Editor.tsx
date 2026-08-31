@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
+import ReminderInput from "../components/ReminderInput";
 import { ERASER_RADIUS, PAGE_H, PAGE_W, eraseStrokes, renderInk } from "../lib/ink";
 import type { InkData, InkStroke } from "../lib/types";
 
@@ -36,15 +37,19 @@ export default function Editor() {
   const [width, setWidth] = useState(WIDTHS[1]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [reminder, setReminder] = useState<string | null>(null);
   const [loading, setLoading] = useState(Boolean(id));
   const [canUndo, setCanUndo] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     api
-      .get<{ id: number; title: string; ink: InkData | null }>(`/notes/${id}`)
+      .get<{ id: number; title: string; reminder_at: string | null; ink: InkData | null }>(
+        `/notes/${id}`,
+      )
       .then((note) => {
         setTitle(note.title);
+        setReminder(note.reminder_at);
         history.current = [];
         setCanUndo(false);
         if (note.ink) {
@@ -227,12 +232,13 @@ export default function Editor() {
     const finalTitle = title.trim() || "Nota manuscrita";
     try {
       if (id) {
-        await api.patch(`/notes/${id}`, { title: finalTitle, ink });
+        await api.patch(`/notes/${id}`, { title: finalTitle, ink, reminder_at: reminder });
       } else {
         await api.post("/notes", {
           title: finalTitle,
           source: "samsung",
           ink,
+          reminder_at: reminder,
         });
       }
       navigate("/");
@@ -282,6 +288,12 @@ export default function Editor() {
           {error}
         </p>
       )}
+
+      {/* Recordatorio opcional */}
+      <div className="flex items-center gap-2 border-b border-slate-800 px-3 py-2">
+        <span className="shrink-0 text-sm text-slate-400">🔔 Recordatorio</span>
+        <ReminderInput value={reminder} onChange={setReminder} />
+      </div>
 
       {/* Lienzo */}
       <div ref={containerRef} className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden p-4">

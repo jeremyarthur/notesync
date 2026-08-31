@@ -119,6 +119,11 @@ export default function Home() {
                       {formatDate(note.created_at)}
                       {note.synced_to_ios && " · ✓ iPhone"}
                     </p>
+                    {note.reminder_at && (
+                      <p className="mt-0.5 text-[11px] text-indigo-300">
+                        🔔 {formatDate(note.reminder_at)}
+                      </p>
+                    )}
                   </div>
                   <button
                     onClick={() => handleDelete(note.id)}

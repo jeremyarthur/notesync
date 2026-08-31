@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
+import ReminderInput from "../components/ReminderInput";
 import { PAGE_H, PAGE_W, renderInk } from "../lib/ink";
 import type { Note } from "../lib/types";
 
@@ -24,12 +25,20 @@ export default function Viewer() {
   const [scale, setScale] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [message, setMessage] = useState("");
+  const [reminder, setReminder] = useState<string | null>(null);
+  const [savingReminder, setSavingReminder] = useState(false);
+  const [editingReminder, setEditingReminder] = useState(false);
 
   useEffect(() => {
     if (!id) return;
+    setReminder(null);
+    setEditingReminder(false);
     api
       .get<Note>(`/notes/${id}`)
-      .then(setNote)
+      .then((n) => {
+        setNote(n);
+        setReminder(n.reminder_at);
+      })
       .catch((err) => setError(err instanceof Error ? err.message : "No se pudo cargar"))
       .finally(() => setLoading(false));
   }, [id]);
@@ -124,6 +133,22 @@ export default function Viewer() {
     navigate("/");
   };
 
+  const saveReminder = async (value: string | null) => {
+    if (!note || savingReminder) return;
+    setSavingReminder(true);
+    setMessage("");
+    try {
+      await api.patch(`/notes/${note.id}`, { reminder_at: value });
+      setReminder(value);
+      setEditingReminder(false);
+      setMessage(value ? "🔔 Recordatorio guardado" : "Recordatorio eliminado");
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "No se pudo guardar el recordatorio");
+    } finally {
+      setSavingReminder(false);
+    }
+  };
+
   if (loading) {
     return <div className="flex h-dvh items-center justify-center text-slate-400">Cargando…</div>;
   }
@@ -182,6 +207,54 @@ export default function Viewer() {
         >
           ✕
         </button>
+      </div>
+
+      {/* Recordatorio */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 px-3 py-2">
+        {reminder ? (
+          <>
+            <span className="text-sm text-indigo-300">
+              🔔{" "}
+              {new Date(reminder).toLocaleString("es-DO", {
+                weekday: "short",
+                day: "2-digit",
+                month: "short",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+            <button
+              onClick={() => setEditingReminder(true)}
+              disabled={savingReminder}
+              className="rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-300 hover:border-indigo-500 disabled:opacity-50"
+            >
+              ✎ Editar
+            </button>
+            <button
+              onClick={() => saveReminder(null)}
+              disabled={savingReminder}
+              className="rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-300 hover:border-red-500 hover:text-red-400 disabled:opacity-50"
+            >
+              ✕ Quitar
+            </button>
+          </>
+        ) : null}
+        {!reminder && !editingReminder && (
+          <button
+            onClick={() => setEditingReminder(true)}
+            className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-indigo-500"
+          >
+            🔔 Fijar recordatorio
+          </button>
+        )}
+        {editingReminder && (
+          <div className="flex-1">
+            <ReminderInput value={reminder} onChange={saveReminder} />
+            <p className="mt-1 text-[11px] text-slate-500">
+              Se guarda al elegir la fecha. Alcanzará la app de Recordatorios y el WebCal.
+            </p>
+          </div>
+        )}
       </div>
 
       {message && (
